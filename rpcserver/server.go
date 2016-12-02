@@ -89,7 +89,7 @@ func (self *Rpcserver) StartServer() (e error) {
 							var _token TOKEN
 							logger.Print("in:", in)
 							if in == reflect.TypeOf(_token) {
-								logger.Print("TODO: AuthFilter")
+								logger.Print("TODO: AuthFilter ========>")
 								inArr[i] = reflect.ValueOf(token)
 								auth = true
 							} else {
