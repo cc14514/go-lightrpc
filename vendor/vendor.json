@@ -1,0 +1,17 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"path": "-v",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "dkoKaeyjVjkXaA3KxTnss8cGkEM=",
+			"path": "github.com/alecthomas/log4go",
+			"revision": "e5dc62318d9bd58682f1dceb53a4b24e8253682f",
+			"revisionTime": "2016-03-07T01:12:53Z"
+		}
+	],
+	"rootPath": "go-lightrpc"
+}
