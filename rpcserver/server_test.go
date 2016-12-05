@@ -1,8 +1,9 @@
 package rpcserver
 
 import (
-	"github.com/alecthomas/log4go"
 	"testing"
+
+	"github.com/alecthomas/log4go"
 )
 
 func TestLog4go(t *testing.T) {
@@ -12,4 +13,9 @@ func TestLog4go(t *testing.T) {
 	//log4go.LoadConfiguration("log.xml")//使用加载配置文件,类似与java的log4j.propertites
 	log4go.Debug(">>>>>>>> %s -- %s", "213", "sad")
 	defer log4go.Close() //注:如果不是一直运行的程序,请加上这句话,否则主线程结束后,也不会输出和log到日志文件
+}
+
+func TestPaserMethodName(t *testing.T) {
+	s := paserMethodName("getUserinfo")
+	t.Log(s)
 }

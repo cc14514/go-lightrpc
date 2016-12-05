@@ -3,10 +3,12 @@ package rpcserver
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/alecthomas/log4go"
-	"github.com/rs/cors"
 	"net/http"
 	"reflect"
+	"strings"
+
+	"github.com/alecthomas/log4go"
+	"github.com/rs/cors"
 )
 
 var (
@@ -83,6 +85,7 @@ func handlerFunc(w http.ResponseWriter, r *http.Request) {
 		} else {
 			s := service.(string)
 			m := method.(string)
+			m = paserMethodName(m)
 			//TODO check service version
 			serviceReg, ok := this.ServiceMap[s]
 			if ok {
@@ -134,4 +137,13 @@ func handlerFunc(w http.ResponseWriter, r *http.Request) {
 		success.Error("1001", fmt.Sprintf("Params format error ;;; %s", err))
 	}
 	success.ResponseAsJson(w)
+}
+
+func paserMethodName(s string) string {
+	b0 := s[0]
+	s0 := string(b0)
+	s0 = strings.ToUpper(s0)
+	sn := s[1:len(s)]
+	s = s0 + sn
+	return s
 }
