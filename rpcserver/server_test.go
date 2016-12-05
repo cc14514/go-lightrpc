@@ -1,9 +1,9 @@
 package rpcserver
 
 import (
-	"testing"
-
 	"github.com/alecthomas/log4go"
+	"github.com/tidwall/gjson"
+	"testing"
 )
 
 func TestLog4go(t *testing.T) {
@@ -18,4 +18,17 @@ func TestLog4go(t *testing.T) {
 func TestPaserMethodName(t *testing.T) {
 	s := paserMethodName("getUserinfo")
 	t.Log(s)
+}
+
+func TestGjson(t *testing.T) {
+	j := []byte(`{"token":"123456","service":"user","method":"login","params":{"username":"foo","password":"123123"}}`)
+	r := gjson.GetBytes(j, "params")
+	t.Log("r.Value()=", r.Value())
+	t.Log("r.Map()=", r.Map())
+	t.Log("r.String()=", r.String())
+	if gjson.GetBytes(j, "hello").String() == "null" {
+		t.Log("ok : empty value (Result.String()) is \"null\" str")
+	}
+	r = gjson.Get("hello world", "foo")
+	t.Log("r =", r)
 }

@@ -1,7 +1,6 @@
 package rpcserver
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -9,6 +8,7 @@ import (
 
 	"github.com/alecthomas/log4go"
 	"github.com/rs/cors"
+	"github.com/tidwall/gjson"
 )
 
 var (
@@ -63,28 +63,24 @@ func logServiceMap(m map[string]ServiceReg) {
 }
 
 func handlerFunc(w http.ResponseWriter, r *http.Request) {
-	var (
-		success *Success = &Success{Success: true}
-		ibody   interface{}
-	)
+	var token TOKEN
+	success := &Success{Success: true}
 	r.ParseForm()
 	body := r.FormValue("body")
-	if len(body) == 0 {
+	if body == "" {
 		success.Success = false
-	} else if err := json.Unmarshal([]byte(body), &ibody); err == nil {
-		mbody := ibody.(map[string]interface{})
-		log4go.Debug("mbody = %s", mbody)
-		var token TOKEN = ""
-		if tokenParam, ok := mbody["token"]; ok {
-			token = TOKEN(tokenParam.(string))
+		success.Error("1000", "params of body notfound")
+	} else {
+		if tokenRes := gjson.Get(body, "token"); tokenRes.String() != "null" {
+			token = TOKEN(tokenRes.String())
 		}
-		if service, ok := mbody["service"]; !ok {
+		if serviceRes := gjson.Get(body, "service"); serviceRes.String() == "null" {
 			success.Error("1002", "service error or notfound")
-		} else if method, ok := mbody["method"]; !ok {
+		} else if methodRes := gjson.Get(body, "method"); methodRes.String() == "null" {
 			success.Error("1002", "method error or notfound")
 		} else {
-			s := service.(string)
-			m := method.(string)
+			s := serviceRes.String()
+			m := methodRes.String()
 			m = paserMethodName(m)
 			//TODO check service version
 			serviceReg, ok := this.ServiceMap[s]
@@ -108,8 +104,8 @@ func handlerFunc(w http.ResponseWriter, r *http.Request) {
 							inArr[i] = reflect.ValueOf(token)
 							auth = true
 						} else {
-							if params, ok := mbody["params"]; ok {
-								inArr[i] = reflect.ValueOf(params)
+							if paramsRes := gjson.Get(body, "params"); paramsRes.String() != "null" {
+								inArr[i] = reflect.ValueOf(paramsRes.String())
 							}
 						}
 					}
@@ -132,9 +128,6 @@ func handlerFunc(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
-	} else {
-		log4go.Debug("mbody_err =", err)
-		success.Error("1001", fmt.Sprintf("Params format error ;;; %s", err))
 	}
 	success.ResponseAsJson(w)
 }

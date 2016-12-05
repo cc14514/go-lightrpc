@@ -11,6 +11,18 @@
 			"path": "github.com/alecthomas/log4go",
 			"revision": "e5dc62318d9bd58682f1dceb53a4b24e8253682f",
 			"revisionTime": "2016-03-07T01:12:53Z"
+		},
+		{
+			"checksumSHA1": "7jNYFx/h1AzhPR2C1OGZ38lBWsE=",
+			"path": "github.com/tidwall/gjson",
+			"revision": "c1e65a498d37a36a3f7dda77fb8cdee7b26940c9",
+			"revisionTime": "2016-12-02T18:59:39Z"
+		},
+		{
+			"checksumSHA1": "qmePMXEDYGwkAfT9QvtMC58JN/E=",
+			"path": "github.com/tidwall/match",
+			"revision": "173748da739a410c5b0b813b956f89ff94730b4c",
+			"revisionTime": "2016-08-30T17:39:30Z"
 		}
 	],
 	"rootPath": "go-lightrpc"
