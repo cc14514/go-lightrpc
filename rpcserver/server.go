@@ -16,6 +16,8 @@ var (
 )
 
 type Rpcserver struct {
+	// url , 默认 /api/
+	Pattern        string
 	Port           int
 	ServiceMap     map[string]ServiceReg
 	CheckToken     func(token TOKEN) bool
@@ -37,7 +39,11 @@ func (self *Rpcserver) StartServer() (e error) {
 	}
 	c := self.makeCors()
 	mux := http.NewServeMux()
-	mux.HandleFunc("/api/", handlerFunc)
+	if self.Pattern != "" {
+		mux.HandleFunc(self.Pattern, handlerFunc)
+	} else {
+		mux.HandleFunc("/api/", handlerFunc)
+	}
 	h := c.Handler(mux)
 	host := fmt.Sprintf(":%d", self.Port)
 	log4go.Debug("host = %s", host)
@@ -106,7 +112,7 @@ func handlerFunc(w http.ResponseWriter, r *http.Request) {
 					}
 					runservice := func() {
 						rtn := refMethod.Call(inArr)[0].Interface().(Success)
-						log4go.Debug("rtn =", rtn)
+						log4go.Debug("rtn = %s", rtn)
 						success = &rtn
 					}
 					if auth {
