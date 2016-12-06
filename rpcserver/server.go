@@ -92,6 +92,7 @@ func handlerFunc(w http.ResponseWriter, r *http.Request) {
 func executeMethod(serviceReg ServiceReg, body string, success *Success) {
 	token := getToken(body)
 	methodName := gjson.Get(body, "method").String()
+	methodName = paserMethodName(methodName)
 	serviceObj := serviceReg.Service
 	refService := reflect.ValueOf(serviceObj)
 	refMethod := refService.MethodByName(methodName)
@@ -117,7 +118,9 @@ func executeMethod(serviceReg ServiceReg, body string, success *Success) {
 		runservice := func() {
 			rtn := refMethod.Call(inArr)[0].Interface().(Success)
 			log4go.Debug("rtn = %s", rtn)
-			success = &rtn
+			success.Sn = rtn.Sn
+			success.Success = rtn.Success
+			success.Entity = rtn.Entity
 		}
 		if auth {
 			if this.CheckToken(token) {
