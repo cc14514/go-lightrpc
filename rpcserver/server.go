@@ -86,7 +86,7 @@ func handlerFunc(w http.ResponseWriter, r *http.Request) {
 
 func executeMethod(serviceReg ServiceReg, body string, success *Success) {
 	token := getToken(body)
-	methodName := gjson.Get(body, "method")
+	methodName := gjson.Get(body, "method").String()
 	serviceObj := serviceReg.Service
 	refService := reflect.ValueOf(serviceObj)
 	refMethod := refService.MethodByName(methodName)
