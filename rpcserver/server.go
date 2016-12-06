@@ -63,7 +63,6 @@ func logServiceMap(m map[string]ServiceReg) {
 }
 
 func handlerFunc(w http.ResponseWriter, r *http.Request) {
-	var token TOKEN
 	success := &Success{Success: true}
 	r.ParseForm()
 	body := r.FormValue("body")
@@ -71,33 +70,29 @@ func handlerFunc(w http.ResponseWriter, r *http.Request) {
 		success.Success = false
 		success.Error("1000", "params of body notfound")
 	} else {
-		if tokenRes := gjson.Get(body, "token"); tokenRes.String() != "null" {
-			token = TOKEN(tokenRes.String())
-		}
 		if serviceRes := gjson.Get(body, "service"); serviceRes.String() == "null" {
 			success.Error("1002", "service error or notfound")
 		} else if methodRes := gjson.Get(body, "method"); methodRes.String() == "null" {
 			success.Error("1002", "method error or notfound")
 		} else {
 			s := serviceRes.String()
-			m := methodRes.String()
-			m = paserMethodName(m)
 			//TODO check service version
 			serviceReg, ok := this.ServiceMap[s]
-			executeMethod(serviceReg, m, success)
+			executeMethod(serviceReg, body, success)
 		}
 	}
 	success.ResponseAsJson(w)
 }
 
-func executeMethod(serviceReg ServiceReg, methodName string, success *Success) {
+func executeMethod(serviceReg ServiceReg, body string, success *Success) {
+	token := getToken(body)
+	methodName := gjson.Get(body, "method")
 	serviceObj := serviceReg.Service
 	refService := reflect.ValueOf(serviceObj)
 	refMethod := refService.MethodByName(methodName)
 	log4go.Debug("refService = %s, refMethod = %s", refService, refMethod)
 	auth := false
 	if refMethod.IsValid() {
-		//TODO check method input/output of define
 		rmt := refMethod.Type()
 		inArr := make([]reflect.Value, rmt.NumIn())
 		for i := 0; i < rmt.NumIn(); i++ {
@@ -129,7 +124,7 @@ func executeMethod(serviceReg ServiceReg, methodName string, success *Success) {
 			runservice()
 		}
 	} else {
-		success.Error("1002", fmt.Sprintf("method notfond ;;; %s", m))
+		success.Error("1002", fmt.Sprintf("method notfond ;;; %s", methodName))
 	}
 }
 
@@ -140,4 +135,12 @@ func paserMethodName(s string) string {
 	sn := s[1:len(s)]
 	s = s0 + sn
 	return s
+}
+
+func getToken(body string) TOKEN {
+	var token TOKEN
+	if tokenRes := gjson.Get(body, "token"); tokenRes.String() != "null" {
+		token = TOKEN(tokenRes.String())
+	}
+	return token
 }
