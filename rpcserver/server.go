@@ -1,6 +1,7 @@
 package rpcserver
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -109,10 +110,29 @@ func executeMethod(serviceReg ServiceReg, body string, success *Success) {
 				log4go.Debug("TODO: AuthFilter ========>")
 				inArr[i] = reflect.ValueOf(token)
 				auth = true
-			} else {
+			} else if kind := in.Kind().String(); kind == "interface" || kind == "map" {
+				//interface{} 和 map[string]interface{} 就是序列化成 map 传递
+				if paramsRes := gjson.Get(body, "params"); paramsRes.String() != "null" {
+					target := map[string]interface{}{}
+					json.Unmarshal([]byte(paramsRes.String()), &target)
+					inArr[i] = reflect.ValueOf(target)
+				}
+			} else if kind == "string" {
+				// 字符串则直接传递 json 字符串
 				if paramsRes := gjson.Get(body, "params"); paramsRes.String() != "null" {
 					inArr[i] = reflect.ValueOf(paramsRes.String())
 				}
+			} else {
+				//TODO 2016-12-06 : 非常遗憾，当前版本还不能支持此功能
+				// 否则反射成 in 指定的 struct 类型
+				//if paramsRes := gjson.Get(body, "params"); paramsRes.String() != "null" {
+				//	inVal := reflect.New(in).Interface()
+				//	json.Unmarshal([]byte(paramsRes.String()), inVal)
+				//	inArr[i] = reflect.ValueOf(&inVal)
+				//}
+				success.Success = false
+				success.Error("TODO", "not support struct yet")
+				return
 			}
 		}
 		runservice := func() {
