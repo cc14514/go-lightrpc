@@ -19,11 +19,11 @@ var (
 
 type Rpcserver struct {
 	// url , 默认 /api/
-	Pattern         string
-	Port            int
-	SValueerviceMap map[string]ServiceReg
-	CheckToken      func(token TOKEN) bool
-	AllowedMethods  []string
+	Pattern        string
+	Port           int
+	ServiceMap     map[string]ServiceReg
+	CheckToken     func(token TOKEN) bool
+	AllowedMethods []string
 }
 
 func (self *Rpcserver) makeCors() *cors.Cors {
@@ -78,7 +78,12 @@ func handlerFunc(w http.ResponseWriter, r *http.Request) {
 			s := serviceRes.String()
 			//TODO check service version
 			serviceReg, ok := this.ServiceMap[s]
-			executeMethod(serviceReg, body, success)
+			if ok {
+				executeMethod(serviceReg, body, success)
+			} else {
+				success.Success = false
+				success.Error("1003", "service not reg")
+			}
 		}
 	}
 	success.ResponseAsJson(w)
