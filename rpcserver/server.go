@@ -19,11 +19,11 @@ var (
 
 type Rpcserver struct {
 	// url , 默认 /api/
-	Pattern        string
-	Port           int
-	ServiceMap     map[string]ServiceReg
-	CheckToken     func(token TOKEN) bool
-	AllowedMethods []string
+	Pattern         string
+	Port            int
+	SValueerviceMap map[string]ServiceReg
+	CheckToken      func(token TOKEN) bool
+	AllowedMethods  []string
 }
 
 func (self *Rpcserver) makeCors() *cors.Cors {
@@ -84,52 +84,53 @@ func handlerFunc(w http.ResponseWriter, r *http.Request) {
 			m = paserMethodName(m)
 			//TODO check service version
 			serviceReg, ok := this.ServiceMap[s]
-			if ok {
-				serviceObj := serviceReg.Service
-				refService := reflect.ValueOf(serviceObj)
-				refMethod := refService.MethodByName(m)
-				log4go.Debug("refService = %s", refService)
-				log4go.Debug("refMethod = %s", refMethod)
-				auth := false
-				if refMethod.IsValid() {
-					//TODO check method input/output of define
-					rmt := refMethod.Type()
-					inArr := make([]reflect.Value, rmt.NumIn())
-					for i := 0; i < rmt.NumIn(); i++ {
-						in := rmt.In(i)
-						var _token TOKEN
-						log4go.Debug("in = %s", in)
-						if in == reflect.TypeOf(_token) {
-							log4go.Debug("TODO: AuthFilter ========>")
-							inArr[i] = reflect.ValueOf(token)
-							auth = true
-						} else {
-							if paramsRes := gjson.Get(body, "params"); paramsRes.String() != "null" {
-								inArr[i] = reflect.ValueOf(paramsRes.String())
-							}
-						}
-					}
-					runservice := func() {
-						rtn := refMethod.Call(inArr)[0].Interface().(Success)
-						log4go.Debug("rtn = %s", rtn)
-						success = &rtn
-					}
-					if auth {
-						if this.CheckToken(token) {
-							runservice()
-						} else {
-							success.Error("1003", fmt.Sprintf("error token"))
-						}
-					} else {
-						runservice()
-					}
-				} else {
-					success.Error("1002", fmt.Sprintf("method notfond ;;; %s", m))
-				}
-			}
+			executeMethod(serviceReg, m, success)
 		}
 	}
 	success.ResponseAsJson(w)
+}
+
+func executeMethod(serviceReg ServiceReg, methodName string, success *Success) {
+	serviceObj := serviceReg.Service
+	refService := reflect.ValueOf(serviceObj)
+	refMethod := refService.MethodByName(methodName)
+	log4go.Debug("refService = %s, refMethod = %s", refService, refMethod)
+	auth := false
+	if refMethod.IsValid() {
+		//TODO check method input/output of define
+		rmt := refMethod.Type()
+		inArr := make([]reflect.Value, rmt.NumIn())
+		for i := 0; i < rmt.NumIn(); i++ {
+			in := rmt.In(i)
+			var _token TOKEN
+			log4go.Debug("in = %s", in)
+			if in == reflect.TypeOf(_token) {
+				log4go.Debug("TODO: AuthFilter ========>")
+				inArr[i] = reflect.ValueOf(token)
+				auth = true
+			} else {
+				if paramsRes := gjson.Get(body, "params"); paramsRes.String() != "null" {
+					inArr[i] = reflect.ValueOf(paramsRes.String())
+				}
+			}
+		}
+		runservice := func() {
+			rtn := refMethod.Call(inArr)[0].Interface().(Success)
+			log4go.Debug("rtn = %s", rtn)
+			success = &rtn
+		}
+		if auth {
+			if this.CheckToken(token) {
+				runservice()
+			} else {
+				success.Error("1003", fmt.Sprintf("error token"))
+			}
+		} else {
+			runservice()
+		}
+	} else {
+		success.Error("1002", fmt.Sprintf("method notfond ;;; %s", m))
+	}
 }
 
 func paserMethodName(s string) string {
