@@ -9,12 +9,8 @@
 * 参数名称：body
 
 **例如：**
-<pre><code>{
-  "service":"sso",
-  "method":"login",
-  "sn":"全局唯一的UUID"
-  "params":{"username":"cc","password":"123"}
-}
+<pre><code>
+http://localhost:8080/api/?body={"service":"sso","method":"login","sn":"UUID""params":{"username":"cc","password":"123"}}
 </code></pre>
 
 **参数格式：**
@@ -35,7 +31,6 @@
 
 * service: 业务模块的注册名，下文会给出业务模块的注册表；
 * method: 具体的业务方法；
-* sn: <font color='red' >请求流水号，要求全局唯一，建议使用 UUID</font>
 * sn: <font color='red' >请求流水号，要求全局唯一，建议使用 UUID</font>
 * params: 业务方法对应的参数；
 
