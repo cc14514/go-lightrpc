@@ -39,8 +39,18 @@ http://localhost:8080/api/?body={"service":"sso","method":"login","sn":"UUID""pa
 统一格式的返回，其中 success 标识请求是否成功，返回 true 则 entity 为 object，object 格式由业务模块定义
 返回 false 则表示请求异常，其中 entity 为 exception 信息
 
+<p>成功：
 <pre><code>{
     "sn":"请求流水号"
-    "success": true / false, 
-    "entity": object / exception
+    "success": true , 
+    "entity": object 
+}</pre></code>
+<p>失败：
+<pre><code>{
+    "sn":"请求流水号"
+    "success": false , 
+    "entity": {
+        "errCode":"错误码",
+        "reason":"原因描述"
+    } 
 }</pre></code>
