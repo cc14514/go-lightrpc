@@ -54,3 +54,6 @@ http://localhost:8080/api/?body={"service":"sso","method":"login","sn":"UUID""pa
         "reason":"原因描述"
     } 
 }</pre></code>
+
+### 使用样例：
+<a href="https://github.com/cc14514/go-lightrpc-example">https://github.com/cc14514/go-lightrpc-example</a>
