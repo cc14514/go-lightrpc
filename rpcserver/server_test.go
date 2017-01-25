@@ -13,6 +13,10 @@ func TestLog4go(t *testing.T) {
 	//log4go.AddFilter("file", log4go.DEBUG, log4go.NewFileLogWriter("/tmp/test.log", false)) //输出到文件,级别为DEBUG,文件名为test.log,每次追加该原文件
 	//log4go.LoadConfiguration("log.xml")//使用加载配置文件,类似与java的log4j.propertites
 	log4go.Debug(">>>>>>>> %s -- %s", "213", "sad")
+	dict := map[string]struct{}{"foo": struct{}{}, "bar": struct{}{}, "hello": struct{}{}}
+	for itm := range dict {
+		log4go.Debug(itm)
+	}
 	defer log4go.Close() //注:如果不是一直运行的程序,请加上这句话,否则主线程结束后,也不会输出和log到日志文件
 }
 
