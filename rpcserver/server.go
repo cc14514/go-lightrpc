@@ -25,6 +25,7 @@ type Rpcserver struct {
 	ServiceMap     map[string]ServiceReg
 	CheckToken     func(token TOKEN) bool
 	AllowedMethods []string
+	ServeMux       *http.ServeMux
 }
 
 func (self *Rpcserver) makeCors() *cors.Cors {
@@ -41,13 +42,15 @@ func (self *Rpcserver) StartServer() (e error) {
 		self.AllowedMethods = []string{"POST", "GET"}
 	}
 	c := self.makeCors()
-	mux := http.NewServeMux()
-	if self.Pattern != "" {
-		mux.HandleFunc(self.Pattern, handlerFunc)
-	} else {
-		mux.HandleFunc("/api/", handlerFunc)
+	if self.ServeMux == nil {
+		self.ServeMux = http.NewServeMux()
 	}
-	h := c.Handler(mux)
+	if self.Pattern != "" {
+		self.ServeMux.HandleFunc(self.Pattern, handlerFunc)
+	} else {
+		self.ServeMux.HandleFunc("/api/", handlerFunc)
+	}
+	h := c.Handler(self.ServeMux)
 	host := fmt.Sprintf(":%d", self.Port)
 	log4go.Debug("host = %s", host)
 	http.ListenAndServe(host, h)
@@ -146,7 +149,7 @@ func executeMethod(serviceReg ServiceReg, body string, success *Success) {
 			success.Entity = rtn.Entity
 		}
 		if auth {
-			if this.CheckToken(token) {
+			if this.CheckToken == nil || this.CheckToken(token) {
 				runservice()
 			} else {
 				success.Error("1003", fmt.Sprintf("error token"))

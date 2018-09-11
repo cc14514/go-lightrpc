@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"io"
+	"io/ioutil"
+	"github.com/alecthomas/log4go"
 )
 
 type ServiceReg struct {
@@ -54,4 +57,21 @@ func (self *Success) ResponseAsJson(wp http.ResponseWriter) {
 		j, _ = json.Marshal(self)
 	}
 	wp.Write(j)
+}
+
+func SuccessFromBytes(buf []byte) *Success {
+	success := &Success{}
+	json.Unmarshal(buf, success)
+	return success
+}
+
+func SuccessFromReader(r io.Reader) *Success {
+	success := &Success{}
+	buf, err := ioutil.ReadAll(r)
+	if err != nil {
+		log4go.Error(err)
+		return nil
+	}
+	json.Unmarshal(buf, success)
+	return success
 }
