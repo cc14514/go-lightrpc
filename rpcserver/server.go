@@ -7,15 +7,16 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/alecthomas/log4go"
 	"github.com/rs/cors"
 	"github.com/tidwall/gjson"
+	"gx/ipfs/QmRNDQa8QhWUzbv64pKYtPJnCWXou84xfoboPkxCsfMqrQ/log4go"
 )
 
 var (
 	//仅在判断参数类型时使用
 	_token TOKEN
 	this   *Rpcserver
+	server *http.Server
 )
 
 type Rpcserver struct {
@@ -33,6 +34,14 @@ func (self *Rpcserver) makeCors() *cors.Cors {
 	return cors.New(cors.Options{
 		AllowedMethods: self.AllowedMethods,
 	})
+}
+
+func (self *Rpcserver) StopServer() (e error) {
+	if server != nil {
+		e = server.Shutdown(nil)
+		log4go.Info("<%v> lightrpc-server-shutdown , see you ...", e)
+	}
+	return e
 }
 
 func (self *Rpcserver) StartServer() (e error) {
@@ -53,7 +62,9 @@ func (self *Rpcserver) StartServer() (e error) {
 	h := c.Handler(self.ServeMux)
 	host := fmt.Sprintf(":%d", self.Port)
 	log4go.Debug("host = %s", host)
-	http.ListenAndServe(host, h)
+	//http.ListenAndServe(host, h)
+	server := &http.Server{Addr: host, Handler: h}
+	server.ListenAndServe()
 	return e
 }
 

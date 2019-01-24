@@ -3,10 +3,10 @@ package rpcserver
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
+	"gx/ipfs/QmRNDQa8QhWUzbv64pKYtPJnCWXou84xfoboPkxCsfMqrQ/log4go"
 	"io"
 	"io/ioutil"
-	"github.com/alecthomas/log4go"
+	"net/http"
 )
 
 type ServiceReg struct {

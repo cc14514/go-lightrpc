@@ -3,8 +3,8 @@ package rpcserver
 import (
 	"testing"
 
-	"github.com/alecthomas/log4go"
 	"github.com/tidwall/gjson"
+	"gx/ipfs/QmRNDQa8QhWUzbv64pKYtPJnCWXou84xfoboPkxCsfMqrQ/log4go"
 )
 
 func TestLog4go(t *testing.T) {
