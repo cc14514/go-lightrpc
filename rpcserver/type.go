@@ -3,9 +3,9 @@ package rpcserver
 import (
 	"encoding/json"
 	"fmt"
-	"gx/ipfs/QmRNDQa8QhWUzbv64pKYtPJnCWXou84xfoboPkxCsfMqrQ/log4go"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -69,7 +69,7 @@ func SuccessFromReader(r io.Reader) *Success {
 	success := &Success{}
 	buf, err := ioutil.ReadAll(r)
 	if err != nil {
-		log4go.Error(err)
+		log.Println("err", err)
 		return nil
 	}
 	json.Unmarshal(buf, success)
