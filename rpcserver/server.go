@@ -29,7 +29,7 @@ type Rpcserver struct {
 }
 
 func (self *Rpcserver) makeCors() *cors.Cors {
-	log.Println(fmt.Sprintf("StartServer port->%s ; allow_method->%s", self.Port, self.AllowedMethods))
+	log.Println(fmt.Sprintf("StartServer port->%d ; allow_method->%s", self.Port, self.AllowedMethods))
 	return cors.New(cors.Options{
 		AllowedMethods: self.AllowedMethods,
 	})
