@@ -3,12 +3,12 @@ package rpcserver
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/rs/cors"
+	"github.com/tidwall/gjson"
 	"log"
 	"net/http"
 	"reflect"
 	"strings"
-	"github.com/rs/cors"
-	"github.com/tidwall/gjson"
 )
 
 var (
@@ -29,7 +29,7 @@ type Rpcserver struct {
 }
 
 func (self *Rpcserver) makeCors() *cors.Cors {
-	log.Println("StartServer port->%s ; allow_method->%s", self.Port, self.AllowedMethods)
+	log.Println(fmt.Sprintf("StartServer port->%s ; allow_method->%s", self.Port, self.AllowedMethods))
 	return cors.New(cors.Options{
 		AllowedMethods: self.AllowedMethods,
 	})
@@ -38,7 +38,7 @@ func (self *Rpcserver) makeCors() *cors.Cors {
 func (self *Rpcserver) StopServer() (e error) {
 	if server != nil {
 		e = server.Shutdown(nil)
-		log.Println("<%v> lightrpc-server-shutdown , see you ...", e)
+		log.Println(fmt.Sprintf("<%v> lightrpc-server-shutdown , see you ...", e))
 	}
 	return e
 }
@@ -60,7 +60,7 @@ func (self *Rpcserver) StartServer() (e error) {
 	}
 	h := c.Handler(self.ServeMux)
 	host := fmt.Sprintf(":%d", self.Port)
-	log.Println("host = %s", host)
+	log.Println("host =", host)
 	//http.ListenAndServe(host, h)
 	server := &http.Server{Addr: host, Handler: h}
 	server.ListenAndServe()
@@ -69,7 +69,7 @@ func (self *Rpcserver) StartServer() (e error) {
 
 func logServiceMap(m map[string]ServiceReg) {
 	for k, _ := range m {
-		log.Println("<<<< service_reg_map >>>> : %s", k)
+		log.Println("<<<< service_reg_map >>>> :", k)
 	}
 	if m == nil {
 		log.Println("<<<< service_reg_map_empty >>>>")
@@ -111,7 +111,7 @@ func executeMethod(serviceReg ServiceReg, body string, success *Success) {
 	serviceObj := serviceReg.Service
 	refService := reflect.ValueOf(serviceObj)
 	refMethod := refService.MethodByName(methodName)
-	log.Println("refService = %s, refMethod = %s", refService, refMethod)
+	log.Println(fmt.Sprintf("refService = %s, refMethod = %s", refService, refMethod))
 	auth := false
 	if refMethod.IsValid() {
 		rmt := refMethod.Type()
@@ -119,7 +119,7 @@ func executeMethod(serviceReg ServiceReg, body string, success *Success) {
 		for i := 0; i < rmt.NumIn(); i++ {
 			in := rmt.In(i)
 			var _token TOKEN
-			log.Println("in = %s", in)
+			log.Println("in =", in)
 			if in == reflect.TypeOf(_token) {
 				log.Println("TODO: AuthFilter ========>")
 				inArr[i] = reflect.ValueOf(token)
@@ -153,7 +153,7 @@ func executeMethod(serviceReg ServiceReg, body string, success *Success) {
 		}
 		runservice := func() {
 			rtn := refMethod.Call(inArr)[0].Interface().(Success)
-			log.Println("rtn = %s", rtn)
+			log.Println("rtn =", rtn)
 			success.Sn = sn
 			success.Success = rtn.Success
 			success.Entity = rtn.Entity
