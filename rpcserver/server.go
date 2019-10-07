@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/rs/cors"
 	"github.com/tidwall/gjson"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"reflect"
@@ -29,10 +30,11 @@ type Rpcserver struct {
 }
 
 func (self *Rpcserver) makeCors() *cors.Cors {
-	log.Println(fmt.Sprintf("StartServer port->%d ; allow_method->%s", self.Port, self.AllowedMethods))
-	return cors.New(cors.Options{
+	log.Println(fmt.Sprintf("StartDefaultServer port->%d ; allow_method->%s", self.Port, self.AllowedMethods))
+	return cors.Default()
+	/*return cors.New(cors.Options{
 		AllowedMethods: self.AllowedMethods,
-	})
+	})*/
 }
 
 func (self *Rpcserver) StopServer() (e error) {
@@ -58,12 +60,15 @@ func (self *Rpcserver) StartServer() (e error) {
 	} else {
 		self.ServeMux.HandleFunc("/api/", handlerFunc)
 	}
+	self.ServeMux.HandleFunc("/", handlerFunc)
 	h := c.Handler(self.ServeMux)
 	host := fmt.Sprintf(":%d", self.Port)
 	log.Println("host =", host)
 	//http.ListenAndServe(host, h)
-	server := &http.Server{Addr: host, Handler: h}
-	server.ListenAndServe()
+	//server := &http.Server{Addr: host, Handler: h}
+	//server.ListenAndServe()
+	http.ListenAndServe(host, h)
+
 	return e
 }
 
@@ -77,9 +82,23 @@ func logServiceMap(m map[string]ServiceReg) {
 }
 
 func handlerFunc(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("=-=-=> METHOD", r.Method)
 	success := &Success{Success: true}
-	r.ParseForm()
-	body := r.FormValue("body")
+	var body = ""
+	switch r.Method {
+	case http.MethodGet:
+		r.ParseForm()
+		body = r.FormValue("body")
+	case http.MethodPost:
+		d, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			log.Println("getbody_err", err)
+		} else {
+			log.Println("getbody_success", err, string(d))
+			body = string(d)
+		}
+	}
+
 	if body == "" {
 		success.Success = false
 		success.Error("1000", "params of body notfound")
