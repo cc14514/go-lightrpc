@@ -128,7 +128,6 @@ func executeMethod(serviceReg ServiceReg, body string, success *Success) {
 	serviceObj := serviceReg.Service
 	refService := reflect.ValueOf(serviceObj)
 	refMethod := refService.MethodByName(methodName)
-	log.Println(fmt.Sprintf("refService = %s, refMethod = %s", refService, refMethod))
 	auth := false
 	if refMethod.IsValid() {
 		rmt := refMethod.Type()
