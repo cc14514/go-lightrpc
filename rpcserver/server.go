@@ -136,7 +136,6 @@ func executeMethod(serviceReg ServiceReg, body string, success *Success) {
 		for i := 0; i < rmt.NumIn(); i++ {
 			in := rmt.In(i)
 			var _token TOKEN
-			log.Println("in =", in)
 			if in == reflect.TypeOf(_token) {
 				log.Println("TODO: AuthFilter ========>")
 				inArr[i] = reflect.ValueOf(token)
@@ -170,7 +169,6 @@ func executeMethod(serviceReg ServiceReg, body string, success *Success) {
 		}
 		runservice := func() {
 			rtn := refMethod.Call(inArr)[0].Interface().(Success)
-			log.Println("rtn =", rtn)
 			success.Sn = sn
 			success.Success = rtn.Success
 			success.Entity = rtn.Entity
