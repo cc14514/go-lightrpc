@@ -82,7 +82,6 @@ func logServiceMap(m map[string]ServiceReg) {
 }
 
 func handlerFunc(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("=-=-=> METHOD", r.Method)
 	success := &Success{Success: true}
 	var body = ""
 	switch r.Method {
@@ -94,7 +93,6 @@ func handlerFunc(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println("getbody_err", err)
 		} else {
-			log.Println("getbody_success", err, string(d))
 			body = string(d)
 		}
 	}
