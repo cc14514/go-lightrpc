@@ -45,6 +45,13 @@ func (self *Rpcserver) StopServer() (e error) {
 	return e
 }
 
+func (self *Rpcserver) AppendHandle(pattern string, handler func(http.ResponseWriter, *http.Request)) {
+	if self.ServeMux == nil {
+		self.ServeMux = http.NewServeMux()
+	}
+	self.ServeMux.HandleFunc(pattern, handler)
+}
+
 func (self *Rpcserver) StartServer() (e error) {
 	this = self
 	logServiceMap(self.ServiceMap)
@@ -52,15 +59,15 @@ func (self *Rpcserver) StartServer() (e error) {
 		self.AllowedMethods = []string{"POST", "GET"}
 	}
 	c := self.makeCors()
-	if self.ServeMux == nil {
-		self.ServeMux = http.NewServeMux()
-	}
 	if self.Pattern != "" {
-		self.ServeMux.HandleFunc(self.Pattern, handlerFunc)
+		//self.ServeMux.HandleFunc(self.Pattern, handlerFunc)
+		self.AppendHandle(self.Pattern, handlerFunc)
 	} else {
-		self.ServeMux.HandleFunc("/api/", handlerFunc)
+		//self.ServeMux.HandleFunc("/api/", handlerFunc)
+		self.AppendHandle("/api/", handlerFunc)
 	}
-	self.ServeMux.HandleFunc("/", handlerFunc)
+	//self.ServeMux.HandleFunc("/", handlerFunc)
+	self.AppendHandle("/", handlerFunc)
 	h := c.Handler(self.ServeMux)
 	host := fmt.Sprintf(":%d", self.Port)
 	log.Println("host =", host)
