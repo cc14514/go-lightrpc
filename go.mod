@@ -4,6 +4,5 @@ go 1.13
 
 require (
 	github.com/rs/cors v1.7.0
-	github.com/stretchr/testify v1.4.0 // indirect
-	github.com/tidwall/gjson v1.3.2
+	github.com/tidwall/gjson v1.6.5
 )
